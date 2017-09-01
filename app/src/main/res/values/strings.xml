@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">AvalonStatTracker</string>
+    <string-array name="roles">
+        <item>Loyal Servant</item>
+        <item>Minion of Mordred</item>
+        <item>Merlin</item>
+        <item>Mordred</item>
+        <item>Perceval</item>
+        <item>Morgana</item>
+        <item>Oberon</item>
+        <item>Mordred</item>
+        <item>Lancelot</item>
+        <item>Assassin</item>
+    </string-array>
+    <string-array name="number_of_players">
+        <item>7</item>
+        <item>6</item>
+        <item>5</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string name="players_json">players</string>
+</resources>
