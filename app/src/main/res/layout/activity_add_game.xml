@@ -15,16 +15,6 @@
         tools:layout_editor_absoluteY="8dp">
 
         <TableLayout
-            android:id="@+id/topTableLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true" >
-
-
-        </TableLayout>
-
-        <TableLayout
             android:id="@+id/bottomTableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -60,6 +50,14 @@
             </TableRow>
 
         </TableLayout>
+
+        <ListView
+            android:id="@+id/playersListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_above="@+id/bottomTableLayout" />
 
     </RelativeLayout>
 

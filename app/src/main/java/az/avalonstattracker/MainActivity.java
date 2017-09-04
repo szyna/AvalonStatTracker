@@ -18,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addGame(View view){
-        Log.d(TAG, "IT works");
         Intent intent = new Intent(this, AddGameActivity.class);
         startActivity(intent);
     }
