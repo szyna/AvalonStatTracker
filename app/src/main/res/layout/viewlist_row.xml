@@ -4,7 +4,6 @@
     android:layout_height="match_parent">
 
     <TableRow>
-
         <Spinner
             android:id="@+id/playerSpinner"
             android:layout_width="match_parent"

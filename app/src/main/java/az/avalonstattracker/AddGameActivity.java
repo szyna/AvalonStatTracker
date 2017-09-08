@@ -1,10 +1,9 @@
 package az.avalonstattracker;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -19,11 +18,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class AddGameActivity extends AppCompatActivity {
 
@@ -58,20 +55,17 @@ public class AddGameActivity extends AppCompatActivity {
             for (Iterator<String> i = json_data.keys(); i.hasNext();){
                 p.add(i.next());
             }
+            //p.add(0, ""); // temporary filler for default selection
 
             Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
-            List<List<String>> players = new ArrayList<>();
-            List<List<String>> characters = new ArrayList<>();
+            List<ViewListRow> data = new ArrayList<>();
             for (int i=0; i<player_nr; i++){
-                players.add(p);
-                characters.add(Arrays.asList(getResources().getStringArray(R.array.roles)));
+                data.add(new ViewListRow(new ArrayList<>(p), Arrays.asList(getResources().getStringArray(R.array.roles))));
             }
 
-            Log.d(TAG, "xxx");
-            NewGameList adapter = new NewGameList(this, players, characters);
             ListView lv = (ListView) findViewById(R.id.playersListView);
+            NewGameList adapter = new NewGameList(this, data, lv);
             lv.setAdapter(adapter);
-            Log.d(TAG, "xxx");
 
         } catch (JSONException e) {
             e.printStackTrace();
