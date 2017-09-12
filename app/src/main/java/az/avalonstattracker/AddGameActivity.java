@@ -4,7 +4,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -18,21 +20,19 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class AddGameActivity extends AppCompatActivity {
 
     RelativeLayout rl;
-    TableRow tr;
     String TAG = "AddGameActivity";
     SharedPreferences pref;
-    String player_json;
-    JSONObject json_data;
-    ArrayAdapter<CharSequence> adapter;
-    TableLayout.LayoutParams params;
     List<Integer> players_entry;
+    GameConfiguration config;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class AddGameActivity extends AppCompatActivity {
         super.onStart();
         rl = (RelativeLayout) findViewById(R.id.add_game_relative_layout);
 
-        String player_json = pref.getString(getString(R.string.players_json), "{}");
+        final String player_json = pref.getString(getString(R.string.players_json), "{}");
         JSONObject json_data;
         try {
             json_data = new JSONObject(player_json);
@@ -55,35 +55,41 @@ public class AddGameActivity extends AppCompatActivity {
             for (Iterator<String> i = json_data.keys(); i.hasNext();){
                 p.add(i.next());
             }
-            //p.add(0, ""); // temporary filler for default selection
 
             Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
-            List<ViewListRow> data = new ArrayList<>();
-            for (int i=0; i<player_nr; i++){
-                data.add(new ViewListRow(new ArrayList<>(p), Arrays.asList(getResources().getStringArray(R.array.roles))));
+
+            config = new GameConfiguration(this, p, player_nr);
+
+            List<ViewListRow> data = new LinkedList<>();
+            for(int i=0; i<player_nr; i++){
+                data.add(new ViewListRow("", "", config));
             }
+            config.setData(data);
 
             ListView lv = (ListView) findViewById(R.id.playersListView);
-            NewGameList adapter = new NewGameList(this, data, lv);
+            NewGameList adapter = new NewGameList(this, data, lv, config);
             lv.setAdapter(adapter);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
 
-    /*public void changePlayerNumber(View view){
-        Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
-        tl = (TableLayout) findViewById(R.id.topTableLayout);
-        if(player_nr > prev_player_nr){
-            // add some players rows
-        }else if (player_nr < prev_player_nr){
-            // remove some players rows
-            //TODO remove children - how?
-            tl.removeViews(player_nr, tl.getChildCount());
-        }
-        prev_player_nr = player_nr;
-    }*/
+        Spinner s = (Spinner) findViewById(R.id.playerNumberSpn);
+        s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String playerNr = adapterView.getItemAtPosition(i).toString();
+                config.playerNr = Integer.parseInt(playerNr);
+                ListView lv = (ListView) findViewById(R.id.playersListView);
+                NewGameList adapter = (NewGameList) lv.getAdapter();
+                adapter.changeDataSize(Integer.parseInt(playerNr));
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) { }
+        });
+    }
 
     public void addPlayer(View view) throws JSONException {
         EditText text = (EditText) findViewById(R.id.nameTextInput);
@@ -97,11 +103,7 @@ public class AddGameActivity extends AppCompatActivity {
             editor.putString(getString(R.string.players_json), json_data.toString());
             editor.apply();
 
-            for (Integer id : players_entry){
-                Spinner s = (Spinner) findViewById(id);
-                ArrayAdapter<String> a = (ArrayAdapter<String>) s.getAdapter();
-                // TODO - maybe change to something else? it seems hard..
-            }
+            config.availablePlayers.add(player_name);
         }
     }
 }

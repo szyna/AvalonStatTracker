@@ -1,6 +1,7 @@
 package az.avalonstattracker;
 
 import android.app.Activity;
+import android.hardware.camera2.CameraManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,20 +21,30 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
 
     private String TAG = "XD";
     private List<ViewListRow> data;
-    private ViewListRow initialData;
     private final Activity context;
-    private List<String> selectedPlayers;
+    private GameConfiguration config;
     ListView lv;
 
-    public NewGameList(Activity context, List<ViewListRow> data, ListView lv){
+    public NewGameList(Activity context, List<ViewListRow> data, ListView lv, GameConfiguration config){
         super(context, R.layout.viewlist_row, data);
         this.data = data;
-        this.initialData = new ViewListRow(new ArrayList<>(data.get(0).players), new ArrayList<>(data.get(0).characters));
         this.context = context;
         this.lv = lv;
-        this.selectedPlayers = new ArrayList<>();
-        for (int i=0; i<data.size(); i++){
-            selectedPlayers.add(data.get(0).players.get(0));
+        this.config = config;
+    }
+
+    public List<ViewListRow> getData() { return data; }
+
+    public void changeDataSize(int newSize){
+        int prevSize = data.size();
+        if (newSize > prevSize){
+            for(int i=prevSize; i<newSize; i++){
+                data.add(new ViewListRow("", "", config));
+            }
+        }else if (newSize < prevSize){
+            for(int i=prevSize-1; i>=newSize; i--){
+                data.remove(i);
+            }
         }
     }
 
@@ -41,6 +52,12 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
     public View getView(final int position, View view, final ViewGroup parent){
         class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
             private boolean userSelect = false;
+            private boolean playerSpinner;
+
+            SpinnerInteractionListener(boolean playerSpinner){
+                this.playerSpinner = playerSpinner;
+                // TODO do this in more elegant way, such us passing method reference (Command pattern)
+            }
 
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -51,28 +68,16 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 if (userSelect) {
-                    Log.d(TAG, "$$$$$$$$$$$$$$$$$$$$");
-                    List<String> availablePlayers = new ArrayList<>(initialData.players);
-                    selectedPlayers.set(position, data.get(position).players.get(pos));
-                    for (String p : selectedPlayers) {
-                        availablePlayers.remove(p);
-                    }
-                    Log.d(TAG, selectedPlayers.toString());
-                    Log.d(TAG, availablePlayers.toString());
-                    View listItem;
                     Spinner s;
-                    List<String> temp;
-                    for (int r = 0; r < lv.getChildCount(); r++) {
-                        temp = new ArrayList<>(availablePlayers);
-                        temp.add(0, selectedPlayers.get(r));
-                        Log.d(TAG, temp.toString());
-                        data.get(position).changePlayers(temp);
-                        listItem = lv.getChildAt(r);
-                        s = listItem.findViewById(R.id.playerSpinner);
-                        s.setSelection(0, false);
-                        Log.d(TAG, s.getSelectedItem().toString());
+                    if (playerSpinner){
+                        s = lv.getChildAt(position).findViewById(R.id.playerSpinner);
+                        data.get(position).setPlayer(s.getSelectedItem().toString());
+                    }else{
+                        s = lv.getChildAt(position).findViewById(R.id.characterSpinner);
+                        data.get(position).setRole(s.getSelectedItem().toString());
                     }
 
+                    // TODO something does not work here properly sometimes
                     userSelect = false;
                 }
             }
@@ -85,20 +90,22 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
         View rowView = inflater.inflate(R.layout.viewlist_row, parent, false);
 
         Spinner playerSpinner = rowView.findViewById(R.id.playerSpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item, data.get(position).players);
-        ArrayAdapter.createFromResource(context, R.array.roles, R.layout.spinner_item);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item, config.availablePlayers);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         playerSpinner.setAdapter(adapter);
-        SpinnerInteractionListener s = new SpinnerInteractionListener();
+        SpinnerInteractionListener s = new SpinnerInteractionListener(true);
         playerSpinner.setOnItemSelectedListener(s);
         playerSpinner.setOnTouchListener(s);
 
         Spinner characterSpinner = rowView.findViewById(R.id.characterSpinner);
-        adapter = new ArrayAdapter<>(context, R.layout.spinner_item, data.get(position).characters);
-        ArrayAdapter.createFromResource(context, R.array.roles, R.layout.spinner_item);
+        adapter = new ArrayAdapter<>(context, R.layout.spinner_item, config.availableRoles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         characterSpinner.setAdapter(adapter);
+        s = new SpinnerInteractionListener(false);
+        characterSpinner.setOnItemSelectedListener(s);
+        characterSpinner.setOnTouchListener(s);
 
         return rowView;
     }
+
 }
