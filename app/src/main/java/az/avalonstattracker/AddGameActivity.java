@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -15,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -89,6 +91,90 @@ public class AddGameActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) { }
         });
+
+        Button winBtn = (Button) findViewById(R.id.addGameBtn);
+        winBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                try {
+                    String games_json = pref.getString(getString(R.string.games_history), "[]");
+                    JSONArray json_data = new JSONArray(games_json);
+                    Map<String, Object> game_entry = new HashMap<>();
+                    String winMethod = ((Spinner) findViewById(R.id.gameResultSpinner)).getSelectedItem().toString();
+
+                    Map<String, String> playerRoles = new HashMap<>();
+                    for (ViewListRow vlr : config.data) {
+                        if (!vlr.selectedPlayer.equals("") && !vlr.selectedRole.equals("")) {
+                            playerRoles.put(vlr.selectedPlayer, vlr.selectedRole);
+                        }
+                    }
+
+                    game_entry.put("players", playerRoles);
+                    game_entry.put("win_method", winMethod);
+
+                    json_data.put(game_entry);
+
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putString(getString(R.string.games_history), json_data.toString());
+                    editor.apply();
+
+                    String players_json = pref.getString(getString(R.string.players_json), "{}");
+                    JSONObject json = new JSONObject(players_json);
+                    JSONObject playerData, roleEntry, genericEntry;
+                    for (ViewListRow vlr : config.data){
+                        if (!vlr.selectedPlayer.equals("") && !vlr.selectedRole.equals("")) {
+                            Log.d(TAG, json.toString());
+                            Log.d(TAG, json.getJSONObject(vlr.selectedPlayer).toString());
+                            playerData = json.getJSONObject(vlr.selectedPlayer);
+                            boolean wasEvil = config.badRoles.contains(vlr.selectedRole);
+                            boolean didWin = winMethod.contains("Evil") && wasEvil;
+                            Log.d(TAG, wasEvil + " " + didWin);
+                            roleEntry = playerData.getJSONObject(vlr.selectedRole);
+                            incrementJsonValue(roleEntry, "played");
+                            if (wasEvil){
+                                genericEntry = playerData.getJSONObject("evil");
+                            }else{
+                                genericEntry = playerData.getJSONObject("good");
+                            }
+                            incrementJsonValue(genericEntry, "played");
+
+                            if (didWin){
+                                incrementJsonValue(roleEntry, "wins");
+                                incrementJsonValue(genericEntry, "wins");
+                            }
+
+                            if(vlr.selectedRole.equals("Merlin")){
+                                genericEntry = playerData.getJSONObject("merlin_stat");
+                                if (winMethod.contains("assassinate")){
+                                    incrementJsonValue(genericEntry, "kill_attempts");
+                                    incrementJsonValue(genericEntry, "killed");
+                                }else if(winMethod.contains("Good")){
+                                    incrementJsonValue(genericEntry, "kill_attempts");
+                                }
+                            }else if(vlr.selectedRole.equals("Assassin")){
+                                genericEntry = playerData.getJSONObject("assassin_stat");
+                                if (winMethod.contains("assassinate")){
+                                    incrementJsonValue(genericEntry, "kill_attempts");
+                                    incrementJsonValue(genericEntry, "kills");
+                                }else if(winMethod.contains("Good")){
+                                    incrementJsonValue(genericEntry, "kill_attempts");
+                                }
+                            }
+                        }
+                    }
+                    editor.putString(getString(R.string.players_json), json.toString());
+                    editor.apply();
+
+                    Log.d(TAG, json.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void incrementJsonValue(JSONObject entry, String key) throws JSONException {
+        entry.put(key, String.valueOf(Integer.parseInt((String) entry.get(key)) + 1));
     }
 
     public void addPlayer(View view) throws JSONException {
@@ -98,7 +184,38 @@ public class AddGameActivity extends AppCompatActivity {
         String player_name = text.getText().toString();
 
         if (!json_data.has(player_name) && !player_name.equals("")){
-            json_data.put(player_name, "");
+            JSONObject playerData, entry;
+
+            playerData = new JSONObject();
+            List<String> keys = new LinkedList<>();
+            keys.addAll(config.badRoles);
+            keys.addAll(config.goodRoles);
+            keys.add("good");
+            keys.add("evil");
+            for (String key : keys){
+                entry = new JSONObject();
+                entry.put("played", "0");
+                entry.put("wins", "0");
+                playerData.put(key, entry);
+            }
+
+            entry = new JSONObject();
+            for (String method : getResources().getStringArray(R.array.game_result)){
+                entry.put(method, "0");
+            }
+            playerData.put("win_method", entry);
+
+            entry = new JSONObject();
+            entry.put("kills", "0");
+            entry.put("kill_attempts", "0");
+            playerData.put("assassin_stat", entry);
+
+            entry = new JSONObject();
+            entry.put("killed", "0");
+            entry.put("kill_attempts", "0");
+            playerData.put("merlin_stat", entry);
+
+            json_data.put(player_name, playerData);
             SharedPreferences.Editor editor = pref.edit();
             editor.putString(getString(R.string.players_json), json_data.toString());
             editor.apply();

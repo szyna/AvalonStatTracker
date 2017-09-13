@@ -25,6 +25,25 @@
                 android:layout_height="match_parent">
 
                 <Spinner
+                    android:id="@+id/gameResultSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.2"
+                    android:entries="@array/game_result" />
+
+                <Button
+                    android:id="@+id/addGameBtn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.2"
+                    android:text="Add game" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Spinner
                     android:id="@+id/playerNumberSpn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -45,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
                     android:onClick="addPlayer"
-                    android:text="Add" />
+                    android:text="Add player" />
 
             </TableRow>
 
