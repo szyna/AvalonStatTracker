@@ -10,6 +10,8 @@
         android:layout_width="304dp"
         android:layout_height="wrap_content"
         android:visibility="visible"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="0dp">
@@ -56,7 +58,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="8"
                     android:contentDescription="Add Name"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:nextFocusUp="@+id/nameTextInput"
+                    android:nextFocusDown="@+id/nameTextInput"/>
 
                 <Button
                     android:id="@+id/nameBtn"
