@@ -96,7 +96,23 @@ public class AddGameActivity extends AppCompatActivity {
         winBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                try {
+                Map<String, String> playerRoles = new HashMap<>();
+                for (ViewListRow vlr : config.data) {
+                    if (!vlr.selectedPlayer.equals("") && !vlr.selectedRole.equals("")) {
+                        playerRoles.put(vlr.selectedPlayer, vlr.selectedRole);
+                    }
+                }
+                String winMethod = ((Spinner) findViewById(R.id.gameResultSpinner)).getSelectedItem().toString();
+
+                config.dbHelper.addGame(playerRoles, winMethod);
+
+                config.dbHelper.getTableAsString("Games");
+                config.dbHelper.getTableAsString("Players");
+                config.dbHelper.getTableAsString("Roles");
+                config.dbHelper.getTableAsString("PlayerRoles");
+                config.dbHelper.getTableAsString("RoleStats");
+
+                /*try {
                     String games_json = pref.getString(getString(R.string.games_history), "[]");
                     JSONArray json_data = new JSONArray(games_json);
                     Map<String, Object> game_entry = new HashMap<>();
@@ -168,7 +184,7 @@ public class AddGameActivity extends AppCompatActivity {
                     Log.d(TAG, json.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
             }
         });
     }
@@ -182,9 +198,14 @@ public class AddGameActivity extends AppCompatActivity {
         String player_json = pref.getString(getString(R.string.players_json), "{}");
         JSONObject json_data = new JSONObject(player_json);
         String player_name = text.getText().toString();
+        config.dbHelper.addPlayer(player_name);
+        config.dbHelper.getTableAsString("Players");
+        config.dbHelper.getTableAsString("RoleStats");
+        config.dbHelper.getTableAsString("Roles");
 
         if (!json_data.has(player_name) && !player_name.equals("")){
-            JSONObject playerData, entry;
+
+            /*JSONObject playerData, entry;
 
             playerData = new JSONObject();
             List<String> keys = new LinkedList<>();
@@ -220,7 +241,7 @@ public class AddGameActivity extends AppCompatActivity {
             editor.putString(getString(R.string.players_json), json_data.toString());
             editor.apply();
 
-            config.availablePlayers.add(player_name);
+            config.availablePlayers.add(player_name);*/
         }
     }
 }

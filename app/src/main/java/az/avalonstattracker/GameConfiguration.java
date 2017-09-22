@@ -16,12 +16,15 @@ class GameConfiguration {
     final Map<Integer, Map<String, Integer>> playerConfig;
     List<String> availableRoles;
     List<String> availablePlayers;
+    List<String> results;
     Integer goodRolesNr;
     Integer badRolesNr;
     Integer playerNr;
     List<ViewListRow> data;
+    DatabaseHelper dbHelper;
 
     GameConfiguration(Context context, List<String> availablePlayers, Integer playerNr){
+        this.dbHelper = new DatabaseHelper(context, DatabaseHelper.DB_NAME, null, DatabaseHelper.version, this);
         this.goodRolesNr = new Integer(0);
         this.badRolesNr = new Integer(0);
         this.context = context;
@@ -32,6 +35,7 @@ class GameConfiguration {
         this.availableRoles = new LinkedList<>();
         this.availableRoles.addAll(this.goodRoles);
         this.availableRoles.addAll(this.badRoles);
+        this.results = Arrays.asList(context.getResources().getStringArray(R.array.game_result));
 
         this.playerConfig = new HashMap<>();
         List<Integer> good_boyes = Arrays.asList(3, 4, 4 ,5 ,6, 6);
