@@ -147,12 +147,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             boolean wasEvil = config.badRoles.contains(e.getValue());
             boolean didWin = result.contains("Evil") == wasEvil;
             String updateQuery = "UPDATE RoleStats SET {0} = {0} + 1 WHERE player_id = {1} and role_id = {2}";
-            Log.d(TAG, MessageFormat.format(updateQuery, "games", player_id, role_id));
-            // TODO update not working at all for some reason
-            Cursor c = db.rawQuery(MessageFormat.format("SELECT role_id FROM RoleStats WHERE player_id = {0} and role_id = {1}", player_id, role_id), null);
-            c.moveToFirst();
-            Log.d(TAG, c.getString(0));
-            Log.d(TAG, db.rawQuery(MessageFormat.format(updateQuery, "games", player_id, role_id), null).toString());
 
             String genericRole;
             if (wasEvil){
@@ -161,22 +155,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 genericRole = "evil";
             }
             String generic_role_id = getFirstRowElement("SELECT id FROM Roles WHERE name = \"" + genericRole + "\"");
-            db.rawQuery(MessageFormat.format(updateQuery, "games", player_id, generic_role_id), null);
+            db.execSQL(MessageFormat.format(updateQuery, "games", player_id, generic_role_id));
 
             if (didWin){
-                db.rawQuery(MessageFormat.format(updateQuery, "win", player_id, role_id), null);
-                db.rawQuery(MessageFormat.format(updateQuery, "win", player_id, generic_role_id), null);
+                db.execSQL(MessageFormat.format(updateQuery, "win", player_id, role_id));
+                db.execSQL(MessageFormat.format(updateQuery, "win", player_id, generic_role_id));
             }else{
-                db.rawQuery(MessageFormat.format(updateQuery, "lose", player_id, role_id), null);
-                db.rawQuery(MessageFormat.format(updateQuery, "lose", player_id, generic_role_id), null);
+                db.execSQL(MessageFormat.format(updateQuery, "lose", player_id, role_id));
+                db.execSQL(MessageFormat.format(updateQuery, "lose", player_id, generic_role_id));
             }
 
             if (e.getValue().equals("Merlin") || e.getValue().equals("Assassin")){
                 if (result.contains("assassinate")){
-                    db.rawQuery(MessageFormat.format(updateQuery, "kills", player_id, role_id), null);
-                    db.rawQuery(MessageFormat.format(updateQuery, "attempts", player_id, role_id), null);
+                    db.execSQL(MessageFormat.format(updateQuery, "kills", player_id, role_id));
+                    db.execSQL(MessageFormat.format(updateQuery, "attempts", player_id, role_id));
                 }else if (result.contains("Good")){
-                    db.rawQuery(MessageFormat.format(updateQuery, "attempts", player_id, role_id), null);
+                    db.execSQL(MessageFormat.format(updateQuery, "attempts", player_id, role_id));
                 }
             }
         }
