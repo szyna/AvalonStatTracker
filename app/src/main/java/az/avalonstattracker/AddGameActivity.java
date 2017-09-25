@@ -7,23 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +25,7 @@ public class AddGameActivity extends AppCompatActivity {
     SharedPreferences pref;
     List<Integer> players_entry;
     GameConfiguration config;
+    static Utilities utils = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,31 +40,20 @@ public class AddGameActivity extends AppCompatActivity {
         super.onStart();
         rl = (RelativeLayout) findViewById(R.id.add_game_relative_layout);
 
-        final String player_json = pref.getString(getString(R.string.players_json), "{}");
-        JSONObject json_data;
-        try {
-            json_data = new JSONObject(player_json);
+        Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
 
-            //init config in main activity.. because its null at this point
-            List<String> players = config.dbHelper.getPlayers();
+        config = new GameConfiguration(utils, player_nr);
 
-            Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
-
-            config = new GameConfiguration(this, players, player_nr);
-
-            List<ViewListRow> data = new LinkedList<>();
-            for(int i=0; i<player_nr; i++){
-                data.add(new ViewListRow("", "", config));
-            }
-            config.setData(data);
-
-            ListView lv = (ListView) findViewById(R.id.playersListView);
-            NewGameList adapter = new NewGameList(this, data, lv, config);
-            lv.setAdapter(adapter);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+        List<ViewListRow> data = new LinkedList<>();
+        for(int i=0; i<config.playerNr; i++){
+            data.add(new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
         }
+        config.setData(data);
+
+        ListView lv = (ListView) findViewById(R.id.playersListView);
+        NewGameList adapter = new NewGameList(this, data, lv, config);
+        lv.setAdapter(adapter);
+
 
         Spinner s = (Spinner) findViewById(R.id.playerNumberSpn);
         s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -97,77 +77,31 @@ public class AddGameActivity extends AppCompatActivity {
             public void onClick(View view){
                 Map<String, String> playerRoles = new HashMap<>();
                 for (ViewListRow vlr : config.data) {
-                    if (!vlr.selectedPlayer.equals("") && !vlr.selectedRole.equals("")) {
+                    if (!vlr.selectedPlayer.equals(config.utils.EMPTY_FIELD) && !vlr.selectedRole.equals(config.utils.EMPTY_FIELD)) {
                         playerRoles.put(vlr.selectedPlayer, vlr.selectedRole);
                     }
                 }
                 String winMethod = ((Spinner) findViewById(R.id.gameResultSpinner)).getSelectedItem().toString();
 
-                config.dbHelper.addGame(playerRoles, winMethod);
+                config.utils.dbHelper.addGame(playerRoles, winMethod);
 
                 //config.dbHelper.getTableAsString("Games");
                 //config.dbHelper.getTableAsString("Players");
                 //config.dbHelper.getTableAsString("Roles");
                 //config.dbHelper.getTableAsString("PlayerRoles");
-                config.dbHelper.getTableAsString("RoleStats");
+//                config.utils.dbHelper.getTableAsString("RoleStats");
 
             }
         });
     }
 
-    private void incrementJsonValue(JSONObject entry, String key) throws JSONException {
-        entry.put(key, String.valueOf(Integer.parseInt((String) entry.get(key)) + 1));
-    }
-
-    public void addPlayer(View view) throws JSONException {
+    public void addPlayer(View view) {
         EditText text = (EditText) findViewById(R.id.nameTextInput);
-        String player_json = pref.getString(getString(R.string.players_json), "{}");
-        JSONObject json_data = new JSONObject(player_json);
         String player_name = text.getText().toString();
-        config.dbHelper.addPlayer(player_name);
-        config.dbHelper.getTableAsString("Players");
-        config.dbHelper.getTableAsString("RoleStats");
-        config.dbHelper.getTableAsString("Roles");
+        config.utils.dbHelper.addPlayer(player_name);
 
-        if (!json_data.has(player_name) && !player_name.equals("")){
-
-            /*JSONObject playerData, entry;
-
-            playerData = new JSONObject();
-            List<String> keys = new LinkedList<>();
-            keys.addAll(config.badRoles);
-            keys.addAll(config.goodRoles);
-            keys.add("good");
-            keys.add("evil");
-            for (String key : keys){
-                entry = new JSONObject();
-                entry.put("played", "0");
-                entry.put("wins", "0");
-                playerData.put(key, entry);
-            }
-
-            entry = new JSONObject();
-            for (String method : getResources().getStringArray(R.array.game_result)){
-                entry.put(method, "0");
-            }
-            playerData.put("win_method", entry);
-
-            entry = new JSONObject();
-            entry.put("kills", "0");
-            entry.put("kill_attempts", "0");
-            playerData.put("assassin_stat", entry);
-
-            entry = new JSONObject();
-            entry.put("killed", "0");
-            entry.put("kill_attempts", "0");
-            playerData.put("merlin_stat", entry);
-
-            json_data.put(player_name, playerData);
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString(getString(R.string.players_json), json_data.toString());
-            editor.apply();
-
-            config.availablePlayers.add(player_name);*/
-        }
+        /*config.utils.dbHelper.getTableAsString("Players");
+        config.utils.dbHelper.getTableAsString("RoleStats");
+        config.utils.dbHelper.getTableAsString("Roles");*/
     }
 }

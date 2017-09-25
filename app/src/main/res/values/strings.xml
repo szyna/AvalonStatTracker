@@ -28,6 +28,5 @@
         <item>Evil assassinate</item>
         <item>Evil votes</item>
     </string-array>
-    <string name="players_json">players</string>
     <string name="games_history">games</string>
 </resources>

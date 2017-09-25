@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.ArraySet;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -20,21 +21,21 @@ import java.util.Map;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    static final public String DB_NAME = "avalon_stats";
-    static final public int version =1;
+    static final String DB_NAME = "avalon_stats";
+    static final int version = 1;
     private String TAG = "DataBaseHelper";
-    private GameConfiguration config;
+    private Utilities utils;
 
-    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, GameConfiguration config) {
+    public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, Utilities utils) {
         super(context, name, null, version);
-        this.config = config;
+        this.utils = utils;
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         List<String> cmds = Arrays.asList(
-                "CREATE TABLE IF NOT EXISTS Roles ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT)",
-                "CREATE TABLE IF NOT EXISTS Players ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT)",
+                "CREATE TABLE IF NOT EXISTS Roles ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, is_good INTEGER, image BLOB)",
+                "CREATE TABLE IF NOT EXISTS Players ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT, image BLOB)",
                 "CREATE TABLE IF NOT EXISTS Results ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, result TEXT)",
                 "CREATE TABLE IF NOT EXISTS Games ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT, result_id INTEGER REFERENCES Results(id))",
                 "CREATE TABLE IF NOT EXISTS PlayerRoles ( id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, game_id INTEGER REFERENCES Games(id), player_id TEXT REFERENCES Players(id), role_id TEXT REFERENCES Roles(id))",
@@ -47,18 +48,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues insertValues;
         List<String> roles = new ArrayList<>();
-        roles.addAll(config.badRoles);
-        roles.addAll(config.goodRoles);
-        roles.add("good");
-        roles.add("evil");
+        roles.addAll(utils.badRoles);
+        roles.addAll(utils.goodRoles);
 
         for(String role : roles){
             insertValues = new ContentValues();
             insertValues.put("name", role);
+            if (utils.goodRoles.contains(role)){
+                insertValues.put("is_good", 1);
+            } else{
+                insertValues.put("is_good", 0);
+            }
             sqLiteDatabase.insert("Roles", null, insertValues);
         }
 
-        List<String> results = new ArrayList<>(config.results);
+        List<String> results = new ArrayList<>(utils.results);
 
         for(String result : results){
             insertValues = new ContentValues();
@@ -93,10 +97,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long id = getWritableDatabase().insert("Players", null, insertValues);
 
         List<String> availableRoles = new LinkedList<>();
-        availableRoles.addAll(config.goodRoles);
-        availableRoles.addAll(config.badRoles);
-        availableRoles.add("good");
-        availableRoles.add("evil");
+        availableRoles.addAll(utils.goodRoles);
+        availableRoles.addAll(utils.badRoles);
         for(String role : availableRoles){
             insertValues = new ContentValues();
             insertValues.put("player_id", id);
@@ -144,28 +146,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             insertValues.put("role_id", role_id);
             db.insert("PlayerRoles", null, insertValues);
 
-            boolean wasEvil = config.badRoles.contains(e.getValue());
+            boolean wasEvil = utils.badRoles.contains(e.getValue());
             boolean didWin = result.contains("Evil") == wasEvil;
             String updateQuery = "UPDATE RoleStats SET {0} = {0} + 1 WHERE player_id = {1} and role_id = {2}";
 
-            String genericRole;
-            if (wasEvil){
-                genericRole = "good";
-            }else{
-                genericRole = "evil";
-            }
-            String generic_role_id = getFirstRowElement("SELECT id FROM Roles WHERE name = \"" + genericRole + "\"");
-            db.execSQL(MessageFormat.format(updateQuery, "games", player_id, generic_role_id));
+            db.execSQL(MessageFormat.format(updateQuery, "games", player_id, role_id));
 
             if (didWin){
                 db.execSQL(MessageFormat.format(updateQuery, "win", player_id, role_id));
-                db.execSQL(MessageFormat.format(updateQuery, "win", player_id, generic_role_id));
             }else{
                 db.execSQL(MessageFormat.format(updateQuery, "lose", player_id, role_id));
-                db.execSQL(MessageFormat.format(updateQuery, "lose", player_id, generic_role_id));
             }
 
-            if (e.getValue().equals("Merlin") || e.getValue().equals("Assassin")){
+            if (e.getValue().equals("Merlin") || e.getValue().equals("Assassin") || e.getValue().equals("Perceval") || e.getValue().equals("Morgana")){
                 if (result.contains("assassinate")){
                     db.execSQL(MessageFormat.format(updateQuery, "kills", player_id, role_id));
                     db.execSQL(MessageFormat.format(updateQuery, "attempts", player_id, role_id));

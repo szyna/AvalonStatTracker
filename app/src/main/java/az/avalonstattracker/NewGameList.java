@@ -39,7 +39,7 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
         int prevSize = data.size();
         if (newSize > prevSize){
             for(int i=prevSize; i<newSize; i++){
-                data.add(new ViewListRow("", "", config));
+                data.add(new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
             }
         }else if (newSize < prevSize){
             for(int i=prevSize-1; i>=newSize; i--){

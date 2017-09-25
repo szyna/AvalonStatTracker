@@ -18,44 +18,46 @@ class ViewListRow {
     }
 
     void setPlayer(String player){
-        if (!selectedPlayer.equals("")){
+        if (!selectedPlayer.equals(config.utils.EMPTY_FIELD)){
             config.availablePlayers.add(selectedPlayer);
         }
         selectedPlayer = player;
-        config.availablePlayers.remove(player);
+        if (!selectedPlayer.equals(config.utils.EMPTY_FIELD)) {
+            config.availablePlayers.remove(player);
+        }
     }
 
     void setRole(String role){
         Integer prevGoodRolesNr = 0, prevBadRolesNr = 0;
-        if(!selectedRole.equals("") && !selectedRole.equals("Minion of Mordred") && !selectedRole.equals("Loyal Servant")){
+        if(!selectedRole.equals(config.utils.EMPTY_FIELD) && !selectedRole.equals("Minion of Mordred") && !selectedRole.equals("Loyal Servant")){
             config.availableRoles.add(selectedRole);
         }
 
-        if (config.goodRoles.contains(selectedRole)){
+        if (config.utils.goodRoles.contains(selectedRole)){
             prevGoodRolesNr = config.goodRolesNr;
             config.goodRolesNr -= 1;
-        }else if(config.badRoles.contains(selectedRole)){
+        }else if(config.utils.badRoles.contains(selectedRole)){
             prevBadRolesNr = config.badRolesNr;
             config.badRolesNr -= 1;
         }
 
         selectedRole = role;
 
-        if (config.goodRoles.contains(selectedRole)){
+        if (config.utils.goodRoles.contains(selectedRole)){
             config.goodRolesNr += 1;
-        }else if(config.badRoles.contains(selectedRole)){
+        }else if(config.utils.badRoles.contains(selectedRole)){
             config.badRolesNr += 1;
         }
 
-        if (!selectedRole.equals("") && !selectedRole.equals("Minion of Mordred") && !selectedRole.equals("Loyal Servant")) {
+        if (!selectedRole.equals(config.utils.EMPTY_FIELD) && !selectedRole.equals("Minion of Mordred") && !selectedRole.equals("Loyal Servant")) {
             config.availableRoles.remove(role);
         }
 
-        if (config.badRolesNr.equals(config.playerConfig.get(config.playerNr).get("bad"))){
-            config.availableRoles.removeAll(config.badRoles);
-        }else if (prevBadRolesNr.equals(config.playerConfig.get(config.playerNr).get("bad"))){
+        if (config.badRolesNr.equals(config.utils.playerConfig.get(config.playerNr).get("evil"))){
+            config.availableRoles.removeAll(config.utils.badRoles);
+        }else if (prevBadRolesNr.equals(config.utils.playerConfig.get(config.playerNr).get("evil"))){
             List<String> availableBadRoles = new LinkedList<>();
-            availableBadRoles.addAll(config.badRoles);
+            availableBadRoles.addAll(config.utils.badRoles);
             for (ViewListRow vlr : config.data){
                 if(!vlr.selectedRole.equals("Minion of Mordred")) {
                     availableBadRoles.remove(vlr.selectedRole);
@@ -65,12 +67,11 @@ class ViewListRow {
         }
 
         // TODO copy pasta ewwww
-        // TODO its bugged if 3 good are first and then 2 bad
-        if (config.goodRolesNr.equals(config.playerConfig.get(config.playerNr).get("good"))){
-            config.availableRoles.removeAll(config.goodRoles);
-        }else if (prevGoodRolesNr.equals(config.playerConfig.get(config.playerNr).get("good"))){
+        if (config.goodRolesNr.equals(config.utils.playerConfig.get(config.playerNr).get("good"))){
+            config.availableRoles.removeAll(config.utils.goodRoles);
+        }else if (prevGoodRolesNr.equals(config.utils.playerConfig.get(config.playerNr).get("good"))){
             List<String> availableGoodRoles = new LinkedList<>();
-            availableGoodRoles.addAll(config.goodRoles);
+            availableGoodRoles.addAll(config.utils.goodRoles);
             for (ViewListRow vlr : config.data){
                 if(!vlr.selectedRole.equals("Loyal Servant")) {
                     availableGoodRoles.remove(vlr.selectedRole);
