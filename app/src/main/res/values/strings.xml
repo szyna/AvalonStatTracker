@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">AvalonStatTracker</string>
+    <string-array name="bad_roles">
+        <item>Minion of Mordred</item>
+        <item>Assassin</item>
+        <item>Morgana</item>
+        <item>Oberon</item>
+        <item>Mordred</item>
+        <item>Lancelot(Bad)</item>
+    </string-array>
+    <string-array name="good_roles">
+        <item>Loyal Servant</item>
+        <item>Merlin</item>
+        <item>Perceval</item>
+        <item>Lancelot(Good)</item>
+    </string-array>
+    <string-array name="number_of_players">
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="game_result">
+        <item>Good</item>
+        <item>Evil missions</item>
+        <item>Evil assassinate</item>
+        <item>Evil votes</item>
+    </string-array>
+    <string name="games_history">games</string>
+</resources>
