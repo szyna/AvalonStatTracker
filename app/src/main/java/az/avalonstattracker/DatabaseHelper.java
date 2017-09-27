@@ -12,9 +12,11 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +172,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<String> getPlayers(){
+    List<String> getPlayers(){
         List<String> players = new LinkedList<>();
         Cursor allRows  = getReadableDatabase().rawQuery("SELECT name FROM Players", null);
         if (allRows.moveToFirst() ){
@@ -183,10 +185,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return players;
     }
 
+    List<GameHistoryEntry> getGamesHistory(){
+        List<GameHistoryEntry> history = new LinkedList<>();
+        List<Map.Entry<String, String>> playerRoles = new LinkedList<>();
+
+        Cursor allRows = getReadableDatabase().rawQuery(
+                "SELECT g.id, g.date, r.result, ro.name, p.name FROM 'Games' as g " +
+                "left join 'Results' as r on g.result_id = r.id left join 'PlayerRoles' as pr on g.id = pr.game_id " +
+                "left join 'Roles' as ro on pr.role_id = ro.id " +
+                "left join 'Players' as p on pr.player_id = p.id", null);
+
+        int columnCount = allRows.getColumnCount();
+        int prevGameId = 1;
+        String prevPlayer = "";
+        int gameId = -1;
+        GameHistoryEntry game = new GameHistoryEntry();
+        if (allRows.moveToFirst() ){
+            do {
+                for (int i=0; i<columnCount; i++) {
+                    gameId = allRows.getInt(0);
+                    String date = allRows.getString(1);
+                    String result = allRows.getString(2);
+                    String role = allRows.getString(3);
+                    String player = allRows.getString(4);
+                    if (gameId == prevGameId){
+                        if (!prevPlayer.equals(player)) {
+                            prevPlayer = player;
+                            playerRoles.add(new AbstractMap.SimpleEntry<>(player, role));
+                            game.playerRoles = playerRoles;
+                            game.date = date;
+                            game.result = result;
+                        }
+                    } else{
+                        prevGameId = gameId;
+                        prevPlayer = player;
+                        history.add(game);
+                        playerRoles = new LinkedList<>();
+                        playerRoles.add(new AbstractMap.SimpleEntry<>(player, role));
+                        game = new GameHistoryEntry(date, result, playerRoles);
+                    }
+                }
+
+            } while (allRows.moveToNext());
+
+            // this is kinda dumb but I had do while and I didn't feel like changing it
+            if (gameId != -1){
+                history.add(game);
+            }
+        }
+
+        allRows.close();
+
+        return history;
+    }
+
     String getTableAsString(String tableName) {
         Log.d(TAG, "getTableAsString called");
         String tableString = String.format("Table %s:\n", tableName);
-        Cursor allRows  = getReadableDatabase().rawQuery("SELECT * FROM " + tableName, null);
+        Cursor allRows = getReadableDatabase().rawQuery("SELECT * FROM " + tableName, null);
         if (allRows.moveToFirst() ){
             String[] columnNames = allRows.getColumnNames();
             do {

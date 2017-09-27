@@ -22,4 +22,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AddGameActivity.class);
         startActivity(intent);
     }
+
+    public void goGameHistory(View view){
+        GameHistoryActivity.utils = utils;
+        Intent intent = new Intent(this, GameHistoryActivity.class);
+        startActivity(intent);
+    }
 }
