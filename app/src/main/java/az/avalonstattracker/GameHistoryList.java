@@ -4,29 +4,35 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 class GameHistoryList extends BaseExpandableListAdapter {
 
-    Context context;
+    private Context context;
+    private Utilities utils;
     private List<String> headerData;
     private HashMap<String, List<Map.Entry<String, String>>> childData;
 
-    GameHistoryList(Context context, List<String> headerData, HashMap<String, List<Map.Entry<String, String>>> childData){
+    GameHistoryList(Context context, List<String> headerData, HashMap<String, List<Map.Entry<String, String>>> childData, Utilities utils){
         this.context = context;
         this.headerData = headerData;
         this.childData = childData;
+        this.utils = utils;
     }
 
     @Override
@@ -65,11 +71,32 @@ class GameHistoryList extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
-        String headerTitle = (String) getGroup(i);
+    public View getGroupView(final int i, boolean b, View view, ViewGroup viewGroup) {
+        final String headerTitle = (String) getGroup(i);
         if (view == null) {
             LayoutInflater infalInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = infalInflater.inflate(R.layout.gamehistory_group, null);
+
+            ImageButton deleteButton = view.findViewById(R.id.game_history_delete_btn);
+
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // TODO this is kinda dumb again, should pass id of Games to List rather than passing it in string
+                    Pattern pattern = Pattern.compile("\\[(\\d+)\\]");
+                    String header = (String) getGroup(i);
+                    Matcher m = pattern.matcher(header);
+
+                    while(m.find()){
+                        utils.dbHelper.removeHistoryGame(m.group(1));
+                        headerData.remove(header);
+                        childData.remove(header);
+                    }
+
+                    notifyDataSetChanged();
+
+                }
+            });
         }
 
         TextView lblListHeader = view.findViewById(R.id.game_history_header);

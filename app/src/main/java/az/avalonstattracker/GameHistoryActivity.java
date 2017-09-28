@@ -30,7 +30,7 @@ public class GameHistoryActivity extends AppCompatActivity {
         prepareGameHistoryData();
 
         ExpandableListView lv = (ExpandableListView) findViewById(R.id.gameHistoryElv);
-        GameHistoryList adapter = new GameHistoryList(this, headerData, childData);
+        GameHistoryList adapter = new GameHistoryList(this, headerData, childData, utils);
         lv.setAdapter(adapter);
     }
 
@@ -40,7 +40,7 @@ public class GameHistoryActivity extends AppCompatActivity {
 
         List<GameHistoryEntry> gamesHistory = utils.dbHelper.getGamesHistory();
         for (GameHistoryEntry e : gamesHistory){
-            String headline = e.date + " " + e.result;
+            String headline = "[" + e.gameId + "] " + e.date + " " + e.result;
             headerData.add(headline);
             childData.put(headline, e.playerRoles);
         }

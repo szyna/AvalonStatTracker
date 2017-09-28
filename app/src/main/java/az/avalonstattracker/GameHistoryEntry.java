@@ -6,13 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 class GameHistoryEntry {
+    int gameId;
     String date;
     String result;
     List<Map.Entry<String, String>> playerRoles;
 
     GameHistoryEntry(){}
 
-    GameHistoryEntry(String date, String result, List<Map.Entry<String, String>> playerRoles){
+    GameHistoryEntry(int gameId, String date, String result, List<Map.Entry<String, String>> playerRoles){
+        this.gameId = gameId;
         this.date = date;
         this.result = result;
         this.playerRoles = playerRoles;
@@ -20,7 +22,7 @@ class GameHistoryEntry {
 
     @Override
     public String toString(){
-        String result = date + " " + this.result;
+        String result = gameId + " " + date + " " + this.result;
         for (Map.Entry<String, String> e : playerRoles){
             result += " \n" + e.getKey() + "-" + e.getValue();
         }

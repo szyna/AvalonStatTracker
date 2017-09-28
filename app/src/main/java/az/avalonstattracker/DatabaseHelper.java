@@ -16,6 +16,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -185,13 +186,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return players;
     }
 
+    void removeHistoryGame(String gameId){
+        getReadableDatabase().execSQL("DELETE FROM Games WHERE id = " + gameId);
+        getReadableDatabase().execSQL("DELETE FROM PlayerRoles WHERE game_id = " + gameId);
+    }
+
     List<GameHistoryEntry> getGamesHistory(){
         List<GameHistoryEntry> history = new LinkedList<>();
         List<Map.Entry<String, String>> playerRoles = new LinkedList<>();
 
         Cursor allRows = getReadableDatabase().rawQuery(
                 "SELECT g.id, g.date, r.result, ro.name, p.name FROM 'Games' as g " +
-                "left join 'Results' as r on g.result_id = r.id left join 'PlayerRoles' as pr on g.id = pr.game_id " +
+                "left join 'Results' as r on g.result_id = r.id " +
+                "left join 'PlayerRoles' as pr on g.id = pr.game_id " +
                 "left join 'Roles' as ro on pr.role_id = ro.id " +
                 "left join 'Players' as p on pr.player_id = p.id", null);
 
@@ -212,6 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         if (!prevPlayer.equals(player)) {
                             prevPlayer = player;
                             playerRoles.add(new AbstractMap.SimpleEntry<>(player, role));
+                            game.gameId = gameId;
                             game.playerRoles = playerRoles;
                             game.date = date;
                             game.result = result;
@@ -222,7 +230,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         history.add(game);
                         playerRoles = new LinkedList<>();
                         playerRoles.add(new AbstractMap.SimpleEntry<>(player, role));
-                        game = new GameHistoryEntry(date, result, playerRoles);
+                        game = new GameHistoryEntry(gameId, date, result, playerRoles);
                     }
                 }
 
@@ -236,6 +244,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         allRows.close();
 
+        // newest entries first
+        Collections.reverse(history);
         return history;
     }
 
