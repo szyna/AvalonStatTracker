@@ -203,11 +203,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "left join 'Players' as p on pr.player_id = p.id", null);
 
         int columnCount = allRows.getColumnCount();
-        int prevGameId = 1;
         String prevPlayer = "";
         int gameId = -1;
         GameHistoryEntry game = new GameHistoryEntry();
-        if (allRows.moveToFirst() ){
+        if (allRows.moveToFirst()){
+            int prevGameId = allRows.getInt(0);
             do {
                 for (int i=0; i<columnCount; i++) {
                     gameId = allRows.getInt(0);
