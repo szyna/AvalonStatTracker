@@ -29,4 +29,5 @@
         <item>Evil votes</item>
     </string-array>
     <string name="games_history">games</string>
+    <string name="title_activity_game_history">GameHistoryActivity</string>
 </resources>

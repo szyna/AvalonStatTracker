@@ -22,7 +22,6 @@ public class AddGameActivity extends AppCompatActivity {
 
     RelativeLayout rl;
     String TAG = "AddGameActivity";
-    SharedPreferences pref;
     List<Integer> players_entry;
     GameConfiguration config;
     static Utilities utils = null;
@@ -32,7 +31,6 @@ public class AddGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_game);
         rl = (RelativeLayout) findViewById(R.id.add_game_relative_layout);
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
         players_entry = new LinkedList<>();
     }
 
