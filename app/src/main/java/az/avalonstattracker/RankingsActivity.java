@@ -56,10 +56,9 @@ public class RankingsActivity extends AppCompatActivity {
             }
         }
         rankings.add("Top killer");
-        //rankings.add("Top saboteur");
-        //rankings.add("Top M&P");
+        rankings.add("Top saboteur");
+        rankings.add("Top M&P");
         rankings.add("Top secret Merlin");
-        rankings.add("The most faked Merlin");
 
         List<String> roles = new ArrayList<>();
         roles.addAll(utils.badRoles);
@@ -159,7 +158,7 @@ public class RankingsActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_rankings, container, false);
 
             String rankingName = getArguments().getString(ARG_RANKING_NAME);
-            List<String> data;
+            List<String> data = new LinkedList<>();
             switch (rankingName){
                 case "Overall winrate": data = utils.dbHelper.getTopWinrate("overall");
                     break;
@@ -167,12 +166,32 @@ public class RankingsActivity extends AppCompatActivity {
                     break;
                 case "Evil winrate": data = utils.dbHelper.getTopWinrate("evil");
                     break;
-                default: data = new LinkedList<>();
+                case "Overall duo winrate": data = utils.dbHelper.getTopDuoWinrate("overall");
+                    break;
+                case "Good duo winrate": data = utils.dbHelper.getTopDuoWinrate("good");
+                    break;
+                case "Evil duo winrate": data = utils.dbHelper.getTopDuoWinrate("evil");
+                    break;
+                case "Top killer": data = utils.dbHelper.getTopKills("Assassin", true);
+                    break;
+                case "Top saboteur": data = utils.dbHelper.getTopSaboteur();
+                    break;
+                case "Top M&P": data = utils.dbHelper.getTopDuoWinrate("M&P");
+                    break;
+                case "Top secret Merlin": data = utils.dbHelper.getTopKills("Merlin", false);
+                    break;
+                default:
+                    data = utils.dbHelper.getTopWinrate(rankingName.split("Top ")[1]); // Top character winrate
                     break;
             }
 
+            int place = 1;
+            for(String e: data){
+                data.set(place-1, MessageFormat.format("{0}. {1}", place, e));
+                place += 1;
+            }
+
             ListView lv = rootView.findViewById(R.id.ranking_lv);
-            //RankingList adapter = new RankingList(rootView.getContext(), data);
             lv.setAdapter(new ArrayAdapter<>(container.getContext(), R.layout.ranking_row, data));
             lv.setOnTouchListener(new View.OnTouchListener() {
                 // Setting on Touch Listener for handling the touch inside ScrollView

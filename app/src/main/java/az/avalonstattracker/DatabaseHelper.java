@@ -5,8 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -19,6 +21,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -250,7 +253,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         stats.add(entry);
 
         List<List<String>> rolesStats = getQueryData(
-                MessageFormat.format("SELECT r.name, win, games, kills, attempts FROM RoleStats as rs left join Roles as r ON r.id = rs.role_id WHERE player_id = \"{0}\"", playerId)
+                MessageFormat.format("" +
+                        "SELECT r.name, win, games, kills, attempts " +
+                        "FROM RoleStats as rs " +
+                        "left join Roles as r ON r.id = rs.role_id " +
+                        "WHERE player_id = \"{0}\"", playerId)
         );
 
         Collections.sort(
@@ -373,7 +380,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     List<String> getTopWinrate(String option){
         /*
-        Available options "overall", "good", "evil"
+        Available options "overall", "good", "evil" and every character name (default)
          */
         List<String> result = new LinkedList<>();
 
@@ -384,31 +391,189 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             whereFilter = "WHERE r.is_good=1";
         } else if (option.equals("evil")){
             whereFilter = "WHERE r.is_good=0";
+        } else {
+            whereFilter = MessageFormat.format("WHERE r.name=\"{0}\"", option);
         }
 
         String query = MessageFormat.format(
-                "SELECT p.name, 1.0*sum(rs.win)/sum(rs.games) as \"Win rate\", sum(rs.win), sum(rs.games) FROM RoleStats as rs " +
+                "SELECT p.name, 1.0*sum(rs.win)/sum(rs.games) as \"Win rate\", sum(rs.win), sum(rs.games) as \"Total games\" FROM RoleStats as rs " +
                         "JOIN Players as p ON rs.player_id = p.id " +
                         "JOIN Roles as r ON rs.role_id = r.id {0} " +
                         "GROUP BY rs.player_id " +
+                        "HAVING \"Total games\" > 0 " +
                         "ORDER BY \"Win rate\" DESC",
                 whereFilter
         );
 
         List<List<String>> data = getQueryData(query);
 
-        Float percent;
         for(List<String> row : data){
-            if (row.get(1) != null){
-                percent = Float.parseFloat(row.get(1));
-            }else{
-                percent = 0.f;
-            }
-
             result.add(
                     MessageFormat.format("{0}    {1,number,#.##%}    ({2}/{3})",
-                            row.get(0), percent, row.get(2), row.get(3))
+                            row.get(0), Float.parseFloat(row.get(1)), row.get(2), row.get(3))
             );
+        }
+
+        return result;
+    }
+
+    class PairResult implements Comparable {
+        Integer games_won;
+        Integer games_played;
+
+        PairResult(){
+            games_played = 0;
+            games_won = 0;
+        }
+
+        @Override
+        public int compareTo(Object o) {
+            PairResult p = (PairResult) o;
+            return Float.compare(p.getWinrate(), getWinrate());
+        }
+
+        public float getWinrate(){
+            return 1.0f * games_won/games_played;
+        }
+
+    }
+
+    public static Map<String, PairResult>  sortByValue(Map<String, PairResult>  map) {
+        List<Map.Entry<String, PairResult> > list = new LinkedList<>(map.entrySet());
+        Collections.sort( list, new Comparator<Map.Entry<String, PairResult> >() {
+            @Override
+            public int compare(Map.Entry<String, PairResult>  o1, Map.Entry<String, PairResult>  o2) {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+
+        Map<String, PairResult>  result = new LinkedHashMap<>();
+        for (Map.Entry<String, PairResult>  entry : list) {
+            result.put(entry.getKey(), entry.getValue());
+        }
+        return result;
+    }
+
+    List<String> getTopDuoWinrate(String option){
+        /*
+        Available options "overall", "good", "evil", "M&P"
+         */
+        List<String> result = new LinkedList<>();
+        Map<String, PairResult> pairMap = new HashMap<>();
+
+        String queryCondition;
+        if( option.equals("M&P") ){
+            queryCondition = "WHERE ro.name = \"Perceval\" or ro.name = \"Merlin\" ";
+        }else{
+            queryCondition = "WHERE ro.is_good = {0} ";
+        }
+
+        String query = MessageFormat.format("SELECT GROUP_CONCAT(DISTINCT(p.name)) as team, r.result FROM Games as g " +
+                "join Results as r on g.result_id = r.id " +
+                "join PlayerRoles as pr on g.id = pr.game_id " +
+                "join Roles as ro on pr.role_id = ro.id " +
+                "join Players as p on pr.player_id = p.id " +
+                "{0}" +
+                "GROUP BY g.id", queryCondition);
+
+        String[] team;
+        String key;
+        Boolean game_won;
+        PairResult pair;
+
+        List<Pair<String, Integer>> options = new LinkedList<>();
+        if ( option.equals("M&P") ){
+            options.add(new Pair<>("good", 0));
+        }else if (option.equals("overall")){
+            options.add(new Pair<>("good", 1));
+            options.add(new Pair<>("evil", 0));
+        }else{
+            if (option.equals("good")){
+                options.add(new Pair<>("good", 1));
+            }else{
+                options.add(new Pair<>("evil", 0));
+            }
+        }
+
+        for(Pair<String, Integer> opt : options){
+            for (List<String> row: getQueryData(MessageFormat.format(query, opt.second))){
+                team = row.get(0).split(",");
+                game_won = row.get(1).toLowerCase().contains(opt.first);
+                for(int i=0; i<team.length; i++){
+                    for(int j=i+1; j<team.length; j++){
+                        key = MessageFormat.format("{0} & {1}", team[i], team[j]);
+                        if ( pairMap.containsKey(key) ){
+                            pair = pairMap.get(key);
+                        }else{
+                            pair = new PairResult();
+                            pairMap.put(key, pair);
+                        }
+
+                        pair.games_played += 1;
+                        if ( game_won ){
+                            pair.games_won += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        for(Map.Entry<String, PairResult> e: sortByValue(pairMap).entrySet()){
+            pair = e.getValue();
+            result.add(MessageFormat.format(
+                    "{0}    winrate : {1,number,#.##%}    ({2}/{3})",
+                    e.getKey(), pair.getWinrate(), pair.games_won, pair.games_played
+            ));
+        }
+
+        return result;
+    }
+
+    List<String> getTopKills(String role, boolean descSort){
+        List<String> result = new LinkedList<>();
+
+        String descSortOpt = "";
+        if (descSort){
+            descSortOpt = "DESC";
+        }
+
+        String query = "SELECT p.name, 1.0*sum(rs.kills)/sum(rs.attempts) as \"KA ratio\", sum(rs.kills), sum(rs.attempts) " +
+                "FROM RoleStats as rs " +
+                "JOIN Players as p ON rs.player_id = p.id " +
+                "JOIN Roles as r ON rs.role_id = r.id " +
+                "WHERE r.name = \"{0}\" " +
+                "GROUP BY rs.player_id " +
+                "HAVING \"KA ratio\" NOT NULL " +
+                "ORDER BY \"KA ratio\" {1}";
+
+        List<List<String>> data = getQueryData(MessageFormat.format(query, role, descSortOpt));
+
+        for(List<String> row : data){
+            result.add(
+                    MessageFormat.format("{0}    {1,number,#.##%}    ({2}/{3})",
+                            row.get(0), Float.parseFloat(row.get(1)), row.get(2), row.get(3))
+            );
+        }
+
+        return result;
+    }
+
+    List<String> getTopSaboteur(){
+        List<String> result = new LinkedList<>();
+
+        String query = "SELECT p.name, count(*) FROM Games as g " +
+                "JOIN Results as r on g.result_id = r.id " +
+                "JOIN PlayerRoles as pr ON g.id = pr.game_id " +
+                "JOIN Players as p ON pr.player_id = p.id " +
+                "JOIN Roles as ro on ro.id = pr.role_id " +
+                "where r.result = 'Evil assassinate' " +
+                "group by p.name " +
+                "ORDER BY \"sabotages\" DESC";
+
+        for(List<String> row : getQueryData(query)){
+            result.add(MessageFormat.format(
+                    "{0}     {1}", row.get(0), row.get(1)
+            ));
         }
 
         return result;
