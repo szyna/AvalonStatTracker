@@ -30,4 +30,7 @@
     </string-array>
     <string name="games_history">games</string>
     <string name="title_activity_game_history">GameHistoryActivity</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="title_activity_rankings">RankingsActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

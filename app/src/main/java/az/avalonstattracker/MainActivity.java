@@ -23,9 +23,21 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void goGameHistory(View view){
+    public void showGameHistory(View view){
         GameHistoryActivity.utils = utils;
         Intent intent = new Intent(this, GameHistoryActivity.class);
+        startActivity(intent);
+    }
+
+    public void showStatistics(View view){
+        StatisticsActivity.utils = utils;
+        Intent intent = new Intent(this, StatisticsActivity.class);
+        startActivity(intent);
+    }
+
+    public void showRankings(View view){
+        RankingsActivity.utils = utils;
+        Intent intent = new Intent(this, RankingsActivity.class);
         startActivity(intent);
     }
 }

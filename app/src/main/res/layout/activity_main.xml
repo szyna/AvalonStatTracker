@@ -36,8 +36,35 @@
                 android:id="@+id/game_hist_btn"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:onClick="goGameHistory"
+                android:onClick="showGameHistory"
                 android:text="Game history"
+                android:visibility="visible" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/statistics_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:onClick="showStatistics"
+                android:text="Statistics"
+                android:visibility="visible" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/rankings_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:onClick="showRankings"
+                android:text="Rankings"
                 android:visibility="visible" />
         </TableRow>
 
