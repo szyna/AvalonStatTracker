@@ -316,6 +316,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     void removeHistoryGame(String gameId){
+        SQLiteDatabase db = getWritableDatabase();
+        String query = MessageFormat.format("select r.result, pr.player_id, ro.is_good, ro.name, ro.id from Games as g " +
+                "join Results as r on r.id = g.result_id " +
+                "join PlayerRoles as pr on pr.game_id = g.id " +
+                "join Roles as ro on ro.id = pr.role_id " +
+                "where g.id = {0}", gameId);
+
+        Boolean game_won;
+        String result, player_id, role_id, role_name;
+        String updateQuery = "UPDATE RoleStats SET {0} = {0} - 1 WHERE player_id = {1} and role_id = {2}";
+        for(List<String> row : getQueryData(query)){
+            result = row.get(0).toLowerCase();
+            role_name = row.get(3);
+            player_id = row.get(1);
+            role_id = row.get(4);
+            game_won = result.contains("good") == row.get(2).contains("1");
+
+            db.execSQL(MessageFormat.format(updateQuery, "games", player_id, role_id));
+            if (game_won){
+                db.execSQL(MessageFormat.format(updateQuery, "win", player_id, role_id));
+            }else{
+                db.execSQL(MessageFormat.format(updateQuery, "lose", player_id, role_id));
+            }
+
+            if (role_name.equals("Merlin") || role_name.equals("Assassin") || role_name.equals("Perceval") || role_name.equals("Morgana")){
+                if (result.contains("assassinate")){
+                    db.execSQL(MessageFormat.format(updateQuery, "kills", player_id, role_id));
+                    db.execSQL(MessageFormat.format(updateQuery, "attempts", player_id, role_id));
+                }else if (result.contains("good")){
+                    db.execSQL(MessageFormat.format(updateQuery, "attempts", player_id, role_id));
+                }
+            }
+        }
         getReadableDatabase().execSQL("DELETE FROM Games WHERE id = " + gameId);
         getReadableDatabase().execSQL("DELETE FROM PlayerRoles WHERE game_id = " + gameId);
     }
@@ -566,7 +599,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "JOIN PlayerRoles as pr ON g.id = pr.game_id " +
                 "JOIN Players as p ON pr.player_id = p.id " +
                 "JOIN Roles as ro on ro.id = pr.role_id " +
-                "where r.result = 'Evil assassinate' " +
+                "where r.result = 'Evil assassinate' AND ro.is_good = 0 " +
                 "group by p.name " +
                 "ORDER BY \"sabotages\" DESC";
 
