@@ -612,6 +612,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    List<String> getLastGamePlayers(){
+        List<String> result = getFirstRow("select GROUP_CONCAT(p.name) from Games as g " +
+                "join PlayerRoles as pr on g.id = pr.game_id " +
+                "join Players as p on pr.player_id = p.id " +
+                "group by g.id " +
+                "order by g.id desc limit 1");
+
+        if (result.size() != 0){
+            result = Arrays.asList(result.get(0).split(","));
+        }
+
+        return result;
+    }
+
     String getTableAsString(String tableName) {
         Log.d(TAG, "getTableAsString called");
         String tableString = String.format("Table %s:\n", tableName);

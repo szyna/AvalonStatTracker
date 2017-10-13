@@ -38,20 +38,27 @@ public class AddGameActivity extends AppCompatActivity {
         super.onStart();
         rl = (RelativeLayout) findViewById(R.id.add_game_relative_layout);
 
-        Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
-
-        config = new GameConfiguration(utils, player_nr);
-
+        //Integer player_nr = Integer.valueOf(((Spinner) findViewById(R.id.playerNumberSpn)).getSelectedItem().toString());
+        List<String> previousPlayers = utils.dbHelper.getLastGamePlayers();
         List<ViewListRow> data = new LinkedList<>();
-        for(int i=0; i<config.playerNr; i++){
-            data.add(new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
+
+        if (previousPlayers.size() > 0){
+            config = new GameConfiguration(utils, previousPlayers.size());
+            for(int i=0; i<config.playerNr; i++){
+                data.add(new ViewListRow(/*previousPlayers.get(i)*/config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
+            }
+        }else{
+            config = new GameConfiguration(utils, 5);
+            for(int i=0; i<config.playerNr; i++){
+                data.add(new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
+            }
         }
+
         config.setData(data);
 
         ListView lv = (ListView) findViewById(R.id.playersListView);
         NewGameList adapter = new NewGameList(this, data, lv, config);
         lv.setAdapter(adapter);
-
 
         Spinner s = (Spinner) findViewById(R.id.playerNumberSpn);
         s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -82,24 +89,39 @@ public class AddGameActivity extends AppCompatActivity {
                 String winMethod = ((Spinner) findViewById(R.id.gameResultSpinner)).getSelectedItem().toString();
 
                 config.utils.dbHelper.addGame(playerRoles, winMethod);
-
-                //config.dbHelper.getTableAsString("Games");
-                //config.dbHelper.getTableAsString("Players");
-                //config.dbHelper.getTableAsString("Roles");
-                //config.dbHelper.getTableAsString("PlayerRoles");
-//                config.utils.dbHelper.getTableAsString("RoleStats");
-
             }
         });
+
+        if (previousPlayers.size() > 0){
+            Spinner spn;
+            View vv;
+
+            config = new GameConfiguration(utils, previousPlayers.size());
+            for(int i=0; i<config.playerNr; i++){
+                vv = getViewByPosition(i, lv);
+                spn = vv.findViewById(R.id.playerSpinner);
+                spn.setSelection(1);
+                NewGameList a = (NewGameList) lv.getAdapter();
+                a.notifyDataSetChanged();
+            }
+        }
+    }
+
+    private View getViewByPosition(int pos, ListView listView) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
+            return listView.getAdapter().getView(pos, null, listView);
+        } else {
+            final int childIndex = pos - firstListItemPosition;
+            return listView.getChildAt(childIndex);
+        }
     }
 
     public void addPlayer(View view) {
         EditText text = (EditText) findViewById(R.id.nameTextInput);
         String player_name = text.getText().toString();
         config.utils.dbHelper.addPlayer(player_name);
-
-        /*config.utils.dbHelper.getTableAsString("Players");
-        config.utils.dbHelper.getTableAsString("RoleStats");
-        config.utils.dbHelper.getTableAsString("Roles");*/
     }
 }

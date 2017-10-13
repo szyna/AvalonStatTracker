@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -93,6 +94,7 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item, config.availablePlayers);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         playerSpinner.setAdapter(adapter);
+
         SpinnerInteractionListener s = new SpinnerInteractionListener(true);
         playerSpinner.setOnItemSelectedListener(s);
         playerSpinner.setOnTouchListener(s);

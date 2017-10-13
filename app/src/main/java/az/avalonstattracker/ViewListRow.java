@@ -15,6 +15,9 @@ class ViewListRow {
         this.selectedPlayer = selectedPlayer;
         this.selectedRole = selectedRole;
         this.config = config;
+        if (!selectedPlayer.equals(config.utils.EMPTY_FIELD)){
+            config.availablePlayers.remove(this.selectedPlayer);
+        }
     }
 
     void setPlayer(String player){
