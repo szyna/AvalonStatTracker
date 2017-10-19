@@ -181,7 +181,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private List<List<String>> getQueryData(String query){
         List<List<String>> result = new LinkedList<>();
         List<String> entry;
-        Log.d("XD", query);
         Cursor allRows = getWritableDatabase().rawQuery(query, null);
         int columnCount = allRows.getColumnCount();
         if (allRows.moveToFirst()){
@@ -594,7 +593,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     List<String> getTopSaboteur(){
         List<String> result = new LinkedList<>();
 
-        String query = "SELECT p.name, count(*) FROM Games as g " +
+        String query = "SELECT p.name, count(*) as \"sabotages\" FROM Games as g " +
                 "JOIN Results as r on g.result_id = r.id " +
                 "JOIN PlayerRoles as pr ON g.id = pr.game_id " +
                 "JOIN Players as p ON pr.player_id = p.id " +
@@ -627,7 +626,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     String getTableAsString(String tableName) {
-        Log.d(TAG, "getTableAsString called");
         String tableString = String.format("Table %s:\n", tableName);
         Cursor allRows = getReadableDatabase().rawQuery("SELECT * FROM " + tableName, null);
         if (allRows.moveToFirst() ){
