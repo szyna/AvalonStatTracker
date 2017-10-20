@@ -181,7 +181,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private List<List<String>> getQueryData(String query){
         List<List<String>> result = new LinkedList<>();
         List<String> entry;
-        Log.d("XD", query);
         Cursor allRows = getWritableDatabase().rawQuery(query, null);
         int columnCount = allRows.getColumnCount();
         if (allRows.moveToFirst()){
@@ -594,7 +593,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     List<String> getTopSaboteur(){
         List<String> result = new LinkedList<>();
 
-        String query = "SELECT p.name, count(*) FROM Games as g " +
+        String query = "SELECT p.name, count(*) as \"sabotages\" FROM Games as g " +
                 "JOIN Results as r on g.result_id = r.id " +
                 "JOIN PlayerRoles as pr ON g.id = pr.game_id " +
                 "JOIN Players as p ON pr.player_id = p.id " +
@@ -612,8 +611,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
+    List<String> getLastGamePlayers(){
+        List<String> result = getFirstRow("select GROUP_CONCAT(p.name) from Games as g " +
+                "join PlayerRoles as pr on g.id = pr.game_id " +
+                "join Players as p on pr.player_id = p.id " +
+                "group by g.id " +
+                "order by g.id desc limit 1");
+
+        if (result.size() != 0){
+            result = Arrays.asList(result.get(0).split(","));
+        }
+
+        return result;
+    }
+
     String getTableAsString(String tableName) {
-        Log.d(TAG, "getTableAsString called");
         String tableString = String.format("Table %s:\n", tableName);
         Cursor allRows = getReadableDatabase().rawQuery("SELECT * FROM " + tableName, null);
         if (allRows.moveToFirst() ){

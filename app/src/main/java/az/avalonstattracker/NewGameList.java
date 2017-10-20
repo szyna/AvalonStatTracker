@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -20,30 +21,31 @@ import java.util.List;
 public class NewGameList extends ArrayAdapter<ViewListRow> {
 
     private String TAG = "XD";
-    private List<ViewListRow> data;
     private final Activity context;
     private GameConfiguration config;
     ListView lv;
 
-    public NewGameList(Activity context, List<ViewListRow> data, ListView lv, GameConfiguration config){
-        super(context, R.layout.viewlist_row, data);
-        this.data = data;
+    public NewGameList(Activity context, ListView lv, GameConfiguration config){
+        super(context, R.layout.viewlist_row, config.data);
         this.context = context;
         this.lv = lv;
         this.config = config;
     }
 
-    public List<ViewListRow> getData() { return data; }
+    public List<ViewListRow> getData() { return config.data; }
 
     public void changeDataSize(int newSize){
-        int prevSize = data.size();
+        int prevSize = config.data.size();
+        config.playerNr = newSize;
         if (newSize > prevSize){
             for(int i=prevSize; i<newSize; i++){
-                data.add(new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config));
+                new ViewListRow(config.utils.EMPTY_FIELD, config.utils.EMPTY_FIELD, config);
             }
         }else if (newSize < prevSize){
             for(int i=prevSize-1; i>=newSize; i--){
-                data.remove(i);
+                config.data.get(i).setPlayer(config.utils.EMPTY_FIELD);
+                config.data.get(i).setRole(config.utils.EMPTY_FIELD);
+                config.data.remove(i);
             }
         }
     }
@@ -71,10 +73,10 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
                     Spinner s;
                     if (playerSpinner){
                         s = lv.getChildAt(position).findViewById(R.id.playerSpinner);
-                        data.get(position).setPlayer(s.getSelectedItem().toString());
+                        config.data.get(position).setPlayer(s.getSelectedItem().toString());
                     }else{
                         s = lv.getChildAt(position).findViewById(R.id.characterSpinner);
-                        data.get(position).setRole(s.getSelectedItem().toString());
+                        config.data.get(position).setRole(s.getSelectedItem().toString());
                     }
 
                     // TODO something does not work here properly sometimes
@@ -89,21 +91,27 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.viewlist_row, parent, false);
 
+        ViewListRow vlr = config.data.get(position);
+
         Spinner playerSpinner = rowView.findViewById(R.id.playerSpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item, config.availablePlayers);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, R.layout.spinner_item, vlr.availablePlayers);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         playerSpinner.setAdapter(adapter);
+        playerSpinner.setSelection(vlr.availablePlayers.indexOf(vlr.selectedPlayer));
+
         SpinnerInteractionListener s = new SpinnerInteractionListener(true);
         playerSpinner.setOnItemSelectedListener(s);
         playerSpinner.setOnTouchListener(s);
 
         Spinner characterSpinner = rowView.findViewById(R.id.characterSpinner);
-        adapter = new ArrayAdapter<>(context, R.layout.spinner_item, config.availableRoles);
+        adapter = new ArrayAdapter<>(context, R.layout.spinner_item, vlr.availableRoles);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         characterSpinner.setAdapter(adapter);
         s = new SpinnerInteractionListener(false);
         characterSpinner.setOnItemSelectedListener(s);
         characterSpinner.setOnTouchListener(s);
+        Log.d(TAG, vlr.selectedRole + " " + vlr.availableRoles);
+        characterSpinner.setSelection(vlr.availableRoles.indexOf(vlr.selectedRole));
 
         return rowView;
     }

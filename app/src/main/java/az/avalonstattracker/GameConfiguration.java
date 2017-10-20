@@ -1,6 +1,5 @@
 package az.avalonstattracker;
 
-import android.content.Context;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,9 +23,10 @@ class GameConfiguration {
         this.availableRoles.addAll(utils.goodRoles);
         this.availableRoles.addAll(utils.badRoles);
         this.utils = utils;
+        this.data = new LinkedList<>();
     }
 
-    void setData(List<ViewListRow> data){
-        this.data = data;
+    void addDataRow(ViewListRow vlr){
+        data.add(vlr);
     }
 }

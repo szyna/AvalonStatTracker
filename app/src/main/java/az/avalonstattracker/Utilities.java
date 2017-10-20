@@ -12,6 +12,7 @@ class Utilities{
 
     final List<String> goodRoles;
     final List<String> badRoles;
+    final List<String> possiblePlayersNumber;
     final Map<Integer, Map<String, Integer>> playerConfig;
     final String EMPTY_FIELD = "";
     List<String> results;
@@ -21,6 +22,7 @@ class Utilities{
         this.goodRoles = Arrays.asList(context.getResources().getStringArray(R.array.good_roles));
         this.badRoles = Arrays.asList(context.getResources().getStringArray(R.array.bad_roles));
         this.results = Arrays.asList(context.getResources().getStringArray(R.array.game_result));
+        this.possiblePlayersNumber = Arrays.asList(context.getResources().getStringArray(R.array.number_of_players));
         this.dbHelper = new DatabaseHelper(context, DatabaseHelper.DB_NAME, null, DatabaseHelper.version, this);
 
         this.playerConfig = new HashMap<>();
