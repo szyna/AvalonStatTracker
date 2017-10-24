@@ -9,8 +9,8 @@
     tools:layout_editor_absoluteX="0dp">
 
     <TableLayout
-        android:layout_width="304dp"
-        android:layout_height="437dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:stretchColumns="*"
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
@@ -25,6 +25,19 @@
                 android:layout_height="match_parent"
                 android:onClick="addGame"
                 android:text="Add game"
+                android:visibility="visible" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/add_player_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:onClick="addPlayer"
+                android:text="Add new player"
                 android:visibility="visible" />
         </TableRow>
 

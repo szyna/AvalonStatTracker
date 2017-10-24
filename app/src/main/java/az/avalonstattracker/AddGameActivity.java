@@ -90,9 +90,4 @@ public class AddGameActivity extends AppCompatActivity {
         lv.setAdapter(adapter);
     }
 
-    public void addPlayer(View view) {
-        EditText text = (EditText) findViewById(R.id.nameTextInput);
-        String player_name = text.getText().toString();
-        config.utils.dbHelper.addPlayer(player_name);
-    }
 }

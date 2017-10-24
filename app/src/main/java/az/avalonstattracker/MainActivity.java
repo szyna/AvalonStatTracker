@@ -1,9 +1,15 @@
 package az.avalonstattracker;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +27,37 @@ public class MainActivity extends AppCompatActivity {
         AddGameActivity.utils = utils;
         Intent intent = new Intent(this, AddGameActivity.class);
         startActivity(intent);
+    }
+
+    public void addPlayer(View view){
+        Context context = this;
+        LayoutInflater li = LayoutInflater.from(context);
+        View promptsView = li.inflate(R.layout.add_player_alert, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = promptsView.findViewById(R.id.add_player_alert_btn);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Add player",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                String player_name = userInput.getText().toString();
+                                utils.dbHelper.addPlayer(player_name);
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
     }
 
     public void showGameHistory(View view){
