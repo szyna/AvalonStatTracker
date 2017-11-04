@@ -6,13 +6,13 @@
     <TableRow>
         <Spinner
             android:id="@+id/playerSpinner"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
         <Spinner
             android:id="@+id/characterSpinner"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
     </TableRow>

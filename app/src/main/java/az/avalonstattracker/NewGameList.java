@@ -110,7 +110,7 @@ public class NewGameList extends ArrayAdapter<ViewListRow> {
         s = new SpinnerInteractionListener(false);
         characterSpinner.setOnItemSelectedListener(s);
         characterSpinner.setOnTouchListener(s);
-        Log.d(TAG, vlr.selectedRole + " " + vlr.availableRoles);
+
         characterSpinner.setSelection(vlr.availableRoles.indexOf(vlr.selectedRole));
 
         return rowView;

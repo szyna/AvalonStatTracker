@@ -1,70 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"   xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_game_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:visibility="visible"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    tools:ignore="MissingConstraints"
     tools:context="az.avalonstattracker.AddGameActivity">
 
-    <RelativeLayout
-        android:id="@+id/add_game_relative_layout"
+    <TableLayout
+        android:id="@+id/bottomTableLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_alignParentBottom="true"
+        android:stretchColumns="*">
 
-        <TableLayout
-            android:id="@+id/bottomTableLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
+        <TableRow
+            android:layout_height="match_parent">
 
-            <TableRow
+            <Spinner
+                android:id="@+id/playerNumberSpn"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:entries="@array/number_of_players" />
 
-                <Spinner
-                    android:id="@+id/playerNumberSpn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.2"
-                    android:entries="@array/number_of_players" />
+        </TableRow>
 
-            </TableRow>
+        <TableRow
+            android:layout_height="match_parent">
 
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            <Spinner
+                android:id="@+id/gameResultSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:entries="@array/game_result" />
 
-                <Spinner
-                    android:id="@+id/gameResultSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.2"
-                    android:entries="@array/game_result" />
+            <Button
+                android:id="@+id/addGameBtn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Add game" />
+        </TableRow>
 
-                <Button
-                    android:id="@+id/addGameBtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.2"
-                    android:text="Add game" />
-            </TableRow>
+    </TableLayout>
 
-        </TableLayout>
+    <ListView
+        android:id="@+id/playersListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottomTableLayout"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:visibility="visible" />
 
-        <ListView
-            android:id="@+id/playersListView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/bottomTableLayout"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:visibility="visible" />
-
-    </RelativeLayout>
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

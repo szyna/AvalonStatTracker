@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater li = LayoutInflater.from(context);
         View promptsView = li.inflate(R.layout.add_player_alert, null);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setView(promptsView);
 
         final EditText userInput = promptsView.findViewById(R.id.add_player_alert_btn);
@@ -45,7 +46,25 @@ public class MainActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 String player_name = userInput.getText().toString();
-                                utils.dbHelper.addPlayer(player_name);
+                                String text;
+                                boolean success;
+                                switch (utils.dbHelper.addPlayer(player_name)) {
+                                    case 1: text = "Player name cannot be empty!";
+                                        success = false;
+                                        break;
+                                    case 2: text = "Player name already exists!";
+                                        success = false;
+                                        break;
+                                    default: text = "Player added successfully";
+                                        success = true;
+                                }
+
+                                Animations.addFadeOutTextAnimation(
+                                        getApplicationContext(),
+                                        (RelativeLayout) findViewById(R.id.const_layout),
+                                        text,
+                                        success
+                                );
                             }
                         })
                 .setNegativeButton("Cancel",
