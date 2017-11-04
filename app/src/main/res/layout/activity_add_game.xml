@@ -14,10 +14,10 @@
         android:id="@+id/bottomTableLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:stretchColumns="*">
 
         <TableRow
-            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <Spinner
@@ -30,21 +30,20 @@
         </TableRow>
 
         <TableRow
-            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <Spinner
                 android:id="@+id/gameResultSpinner"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
+                android:layout_weight="1"
                 android:entries="@array/game_result" />
 
             <Button
                 android:id="@+id/addGameBtn"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.2"
+                android:layout_weight="1"
                 android:text="Add game" />
         </TableRow>
 
