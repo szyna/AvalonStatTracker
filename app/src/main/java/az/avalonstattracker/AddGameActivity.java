@@ -65,8 +65,23 @@ public class AddGameActivity extends AppCompatActivity {
                     }
                 }
                 String winMethod = ((Spinner) findViewById(R.id.gameResultSpinner)).getSelectedItem().toString();
+                String text;
+                boolean success;
+                if (config.data.size() != playerRoles.size()){
+                    text = "Some of the fields are empty!";
+                    success = false;
+                } else{
+                    text = "Game added successfully";
+                    success = true;
+                    config.utils.dbHelper.addGame(playerRoles, winMethod);
+                }
 
-                config.utils.dbHelper.addGame(playerRoles, winMethod);
+                Animations.addFadeOutTextAnimation(
+                        getApplicationContext(),
+                        (RelativeLayout) findViewById(R.id.add_game_relative_layout),
+                        text,
+                        success
+                );
             }
         });
 

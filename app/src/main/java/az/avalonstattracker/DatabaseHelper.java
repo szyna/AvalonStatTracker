@@ -96,13 +96,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    void addPlayer(String playerName){
+    int addPlayer(String playerName){
         /*
         Add player and create empty stats for every possible role for this player
          */
+        if ( playerName.equals("") ){
+            return 1;
+        } else if (getFirstRow("SELECT id FROM Players WHERE name = \"" + playerName + "\"").size() > 0){
+            return 2;
+        }
+
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues insertValues = new ContentValues();
         insertValues.put("name", playerName);
-        long id = getWritableDatabase().insert("Players", null, insertValues);
+        long id = db.insert("Players", null, insertValues);
 
         List<String> availableRoles = new LinkedList<>();
         availableRoles.addAll(utils.goodRoles);
@@ -117,8 +124,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             insertValues.put("attempts", 0);
 
             insertValues.put("role_id", getFirstRow("SELECT id FROM Roles WHERE name = \"" + role + "\"").get(0));
-            getWritableDatabase().insert("RoleStats", null, insertValues);
+            db.insert("RoleStats", null, insertValues);
         }
+        return 0;
     }
 
     private List<String> getFirstRow(String query){
@@ -598,7 +606,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "JOIN PlayerRoles as pr ON g.id = pr.game_id " +
                 "JOIN Players as p ON pr.player_id = p.id " +
                 "JOIN Roles as ro on ro.id = pr.role_id " +
-                "where r.result = 'Evil assassinate' AND ro.is_good = 0 " +
+                "where r.result = 'Evil votes' AND ro.is_good = 0 " +
                 "group by p.name " +
                 "ORDER BY \"sabotages\" DESC";
 
