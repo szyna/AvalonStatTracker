@@ -22,7 +22,8 @@
                 android:layout_height="match_parent"
                 android:onClick="addGame"
                 android:text="Add game"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Button"/>
         </TableRow>
 
         <TableRow
@@ -35,7 +36,8 @@
                 android:layout_height="match_parent"
                 android:onClick="addPlayer"
                 android:text="Add new player"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Button"/>
         </TableRow>
 
         <TableRow
@@ -48,7 +50,8 @@
                 android:layout_height="match_parent"
                 android:onClick="showGameHistory"
                 android:text="Game history"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Button"/>
         </TableRow>
 
         <TableRow
@@ -61,7 +64,8 @@
                 android:layout_height="match_parent"
                 android:onClick="showStatistics"
                 android:text="Statistics"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Button"/>
 
         </TableRow>
 
@@ -75,7 +79,8 @@
                 android:layout_height="match_parent"
                 android:onClick="showRankings"
                 android:text="Rankings"
-                android:visibility="visible" />
+                android:visibility="visible"
+                style="@style/Button"/>
         </TableRow>
 
     </TableLayout>

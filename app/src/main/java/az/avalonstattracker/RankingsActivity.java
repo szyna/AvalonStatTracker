@@ -30,6 +30,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RankingsActivity extends AppCompatActivity {
 
@@ -158,7 +160,8 @@ public class RankingsActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_rankings, container, false);
 
             String rankingName = getArguments().getString(ARG_RANKING_NAME);
-            List<String> data = new LinkedList<>();
+            List<String> data;
+            List<String> rankings = new LinkedList<>();
             switch (rankingName){
                 case "Overall winrate": data = utils.dbHelper.getTopWinrate("overall");
                     break;
@@ -185,14 +188,28 @@ public class RankingsActivity extends AppCompatActivity {
                     break;
             }
 
-            int place = 1;
+            int place = 0;
+            String prevPercent = "";
+            //TODO dont retrieve it via regex
+            Pattern pattern = Pattern.compile("(\\d+(?:\\.\\d+)?)%");
+            Matcher m;
+            String placeString;
+
             for(String e: data){
-                data.set(place-1, MessageFormat.format("{0}. {1}", place, e));
-                place += 1;
+                m = pattern.matcher(e);
+                if(m.find() && !m.group(1).equals(prevPercent)){
+                    place += 1;
+                    prevPercent = m.group(1);
+                    placeString = MessageFormat.format("{0}. ", place);
+                }else{
+                    //TODO this feels stupid
+                    placeString = "     ";
+                }
+                rankings.add(MessageFormat.format("{0}{1}", placeString, e));
             }
 
             ListView lv = rootView.findViewById(R.id.ranking_lv);
-            lv.setAdapter(new ArrayAdapter<>(container.getContext(), R.layout.ranking_row, data));
+            lv.setAdapter(new ArrayAdapter<>(container.getContext(), R.layout.ranking_row, rankings));
             lv.setOnTouchListener(new View.OnTouchListener() {
                 // Setting on Touch Listener for handling the touch inside ScrollView
                 @Override
