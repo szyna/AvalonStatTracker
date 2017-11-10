@@ -2,13 +2,12 @@ package az.avalonstattracker;
 
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.util.DisplayMetrics;
+import android.support.v4.content.ContextCompat;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -16,6 +15,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 class Animations {
@@ -47,9 +47,9 @@ class Animations {
         tv.setText(text);
 
         if (success) {
-            gd.setColor(0xFF4176d2);
+            gd.setColor(ContextCompat.getColor(context, R.color.colorPrimary));
         }else{
-            gd.setColor(0xFFBF0003);
+            gd.setColor(ContextCompat.getColor(context, R.color.colorAccent));
         }
 
         RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(
@@ -69,6 +69,7 @@ class Animations {
         Animation a = AnimationUtils.loadAnimation(context, R.anim.fade_out_animation);
         a.setAnimationListener(new FadeOutAnimationListener(ll));
         ll.setAnimation(a);
+
     }
 
 }
