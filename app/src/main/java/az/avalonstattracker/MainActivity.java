@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater li = LayoutInflater.from(context);
         View promptsView = li.inflate(R.layout.add_player_alert, null);
 
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context, R.style.DialogTheme);
         alertDialogBuilder.setView(promptsView);
 
         final EditText userInput = promptsView.findViewById(R.id.add_player_alert_btn);

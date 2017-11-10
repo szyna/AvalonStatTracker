@@ -5,84 +5,101 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorGlobalBackground"
     tools:context="az.avalonstattracker.MainActivity">
 
-    <TableLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:stretchColumns="*">
+        android:layout_height="match_parent">
 
-        <TableRow
+        <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:stretchColumns="*">
 
-            <Button
-                android:id="@+id/add_gam_btn"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="addGame"
-                android:text="Add game"
-                android:visibility="visible"
-                style="@style/Button"/>
-        </TableRow>
+                android:layout_height="match_parent">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/round_table" />
+            </TableRow>
 
-            <Button
-                android:id="@+id/add_player_btn"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="addPlayer"
-                android:text="Add new player"
-                android:visibility="visible"
-                style="@style/Button"/>
-        </TableRow>
+                android:layout_height="match_parent">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <Button
+                    android:id="@+id/add_gam_btn"
+                    style="@style/Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:onClick="addGame"
+                    android:text="Add game"
+                    android:visibility="visible" />
+            </TableRow>
 
-            <Button
-                android:id="@+id/game_hist_btn"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="showGameHistory"
-                android:text="Game history"
-                android:visibility="visible"
-                style="@style/Button"/>
-        </TableRow>
+                android:layout_height="match_parent">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+                <Button
+                    android:id="@+id/add_player_btn"
+                    style="@style/Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:onClick="addPlayer"
+                    android:text="Add new player"
+                    android:visibility="visible" />
+            </TableRow>
 
-            <Button
-                android:id="@+id/statistics_btn"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="showStatistics"
-                android:text="Statistics"
-                android:visibility="visible"
-                style="@style/Button"/>
+                android:layout_height="match_parent">
 
-        </TableRow>
+                <Button
+                    android:id="@+id/game_hist_btn"
+                    style="@style/Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:onClick="showGameHistory"
+                    android:text="Game history"
+                    android:visibility="visible" />
+            </TableRow>
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <Button
-                android:id="@+id/rankings_btn"
+            <TableRow
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:onClick="showRankings"
-                android:text="Rankings"
-                android:visibility="visible"
-                style="@style/Button"/>
-        </TableRow>
+                android:layout_height="match_parent">
 
-    </TableLayout>
+                <Button
+                    android:id="@+id/statistics_btn"
+                    style="@style/Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:onClick="showStatistics"
+                    android:text="Statistics"
+                    android:visibility="visible" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/rankings_btn"
+                    style="@style/Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:onClick="showRankings"
+                    android:text="Rankings"
+                    android:visibility="visible" />
+            </TableRow>
+
+        </TableLayout>
+    </ScrollView>
 
 </RelativeLayout>

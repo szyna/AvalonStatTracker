@@ -19,12 +19,18 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Button" parent="android:style/Widget.Button">
-        <item name="android:textSize">19sp</item>
+        <item name="android:textSize">24sp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
         <item name="android:textColor">@color/colorText</item>
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@drawable/rounded_edges</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/colorGlobalBackground</item>
     </style>
 
 </resources>
+
